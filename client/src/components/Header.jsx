@@ -56,7 +56,22 @@ const Header = () => {
         </form>
       </div>
 
-      <div className="text-center">
+      <div className="text-center mt-8">
+        <button 
+          onClick={() => window.location.href = '/user-dashboard'}
+          className="font-medium py-2 px-6 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors mr-4"
+        >
+          My Dashboard
+        </button>
+        <button 
+          onClick={() => window.location.href = '/add-blog'}
+          className="font-medium py-2 px-6 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+        >
+          Create New Blog
+        </button>
+      </div>
+
+      <div className="text-center mt-4">
         {input && (
           <button
             onClick={onClear}

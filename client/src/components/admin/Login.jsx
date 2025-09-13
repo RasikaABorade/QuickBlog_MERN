@@ -72,6 +72,16 @@ const Login = () => {
               Login
             </button>
           </form>
+          {/* Secondary option for regular users */}
+          <div className="w-full sm:max-w-md text-center mt-4">
+            <p className="text-sm text-gray-500 mb-2">Not an admin?</p>
+            <a
+              href="/user-login"
+              className="inline-block w-full py-3 font-medium border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+            >
+              User Login / Sign Up
+            </a>
+          </div>
         </div>
       </div>
     </div>

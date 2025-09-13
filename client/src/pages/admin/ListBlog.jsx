@@ -43,7 +43,10 @@ const ListBlog = () => {
                 Date
               </th>
               <th scope="col" className="px-2 py-4 max-sm:hidden">
-                status
+                Author
+              </th>
+              <th scope="col" className="px-2 py-4 max-sm:hidden">
+                Status
               </th>
               <th scope="col" className="px-2 py-4">
                 Action

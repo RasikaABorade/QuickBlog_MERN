@@ -10,6 +10,15 @@ const blogSchema = new mongoose.Schema(
     category: { type: String, required: true },
     image: { type: String, required: true },
     isPublished: { type: Boolean, required: true },
+    author: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'User',
+      default: null // For backward compatibility with existing blogs
+    },
+    authorName: { 
+      type: String,
+      default: "Admin" // For backward compatibility
+    }
   },
   { timestamps: true }
 );

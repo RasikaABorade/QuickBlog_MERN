@@ -21,7 +21,15 @@ export const AppProvider = ({ children }) => {
   //to display notification we use react  hot toast
   const fetchBlogs = async () => {
     try {
-      const { data } = await axios.get("/api/blog/all");
+      const userToken = localStorage.getItem("userToken");
+      if (!userToken) {
+        setBlogs([]);
+        return;
+      }
+      
+      const { data } = await axios.get("/api/blog/all", {
+        headers: { Authorization: userToken }
+      });
       data.success ? setBlogs(data.blogs) : toast.error(data.message);
       //it will store data from database from blogstate
     } catch (error) {
@@ -38,6 +46,11 @@ export const AppProvider = ({ children }) => {
       axios.defaults.headers.common["Authorization"] = `${token}`; //whwnever admin is logged in this token will be called
     }
   }, []);
+
+  // Add function to refresh blogs
+  const refreshBlogs = () => {
+    fetchBlogs();
+  };
   const value = {
     axios,
     navigate,
@@ -47,6 +60,7 @@ export const AppProvider = ({ children }) => {
     setBlogs,
     input,
     setInput,
+    refreshBlogs,
   };
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

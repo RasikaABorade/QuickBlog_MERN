@@ -15,7 +15,6 @@ export const addBlog = async (req, res) => {
     if (!title || !description || !category || !imageFile) {
       return res.json({ success: false, message: "Missing required fields" });
     }
-    //if all data is available we can store in mongodb but we have to store img too , so instead of image we are goin to store img url
 
     const fileBuffer = fs.readFileSync(imageFile.path);
 
@@ -23,22 +22,34 @@ export const addBlog = async (req, res) => {
     const response = await imagekit.upload({
       file: fileBuffer,
       fileName: `blog-image-${Date.now()}.jpg`,
-      //   fileName: imageFile.originalname,
       folder: "blogs",
     });
-    console.log("ImageKit upload response:", response);
 
     //optimization through imagekit URL transformation
     const optimizedImageUrl = imagekit.url({
       path: response.filePath,
       transformation: [
-        { quality: "auto" }, //it will optimize quality auto compression
-        { format: "webp" }, //convert to modern format
-        { width: "1280" }, //1280 px // width resizing
+        { quality: "auto" },
+        { format: "webp" },
+        { width: "1280" },
       ],
     });
 
     const image = optimizedImageUrl;
+
+    // Get author information from token
+    let author = null;
+    let authorName = "Admin";
+
+    if (req.userId) {
+      // User is logged in
+      const User = (await import("../models/User.js")).default;
+      const user = await User.findById(req.userId);
+      if (user) {
+        author = user._id;
+        authorName = user.name;
+      }
+    }
 
     await Blog.create({
       title,
@@ -47,21 +58,38 @@ export const addBlog = async (req, res) => {
       category,
       image,
       isPublished,
+      author,
+      authorName,
     });
 
-    res.json({ success: true, message: "Blog added successfully" }); //we will send response
+    res.json({ success: true, message: "Blog added successfully" });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
 };
 
-//create api for blog lists(blog post)
+//create api for blog lists(blog post) - now user-specific
 export const getAllBlogs = async (req, res) => {
   try {
-    const blogs = await Blog.find({ isPublished: true });
-    res.json({ success: true, blogs });
+    // If admin (including main admin), show all published blogs
+    if (req.userRole === 'admin' || req.isMainAdmin) {
+      const blogs = await Blog.find({ isPublished: true }).sort({ createdAt: -1 });
+      return res.json({ success: true, blogs });
+    }
+
+    // If regular authenticated user, show only their published blogs
+    if (req.userId) {
+      const blogs = await Blog.find({
+        author: req.userId,
+        isPublished: true,
+      }).sort({ createdAt: -1 });
+      return res.json({ success: true, blogs });
+    }
+
+    // If no user is logged in, return empty array (current behavior)
+    return res.json({ success: true, blogs: [] });
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    return res.json({ success: false, message: error.message });
   }
 };
 
@@ -144,6 +172,16 @@ export const generateContent = async (req, res) => {
       prompt + " Generate a blog content for this topic in simple text fromat "
     );
     res.json({ success: true, content });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// Get blogs by user (for user dashboard)
+export const getUserBlogs = async (req, res) => {
+  try {
+    const blogs = await Blog.find({ author: req.userId }).sort({ createdAt: -1 });
+    res.json({ success: true, blogs });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }

@@ -8,6 +8,9 @@ import AddBlog from "./pages/admin/AddBlog";
 import ListBlog from "./pages/admin/ListBlog";
 import Comments from "./pages/admin/Comments";
 import Login from "./components/admin/Login";
+import UserLogin from "./pages/UserLogin";
+import UserDashboard from "./pages/UserDashboard";
+import UserAddBlog from "./pages/UserAddBlog";
 import "quill/dist/quill.snow.css";
 import { Toaster } from "react-hot-toast";
 import { useAppContext } from "./context/AppContext";
@@ -20,6 +23,9 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/blog/:id" element={<Blog />} />
+        <Route path="/user-login" element={<UserLogin />} />
+        <Route path="/user-dashboard" element={<UserDashboard />} />
+        <Route path="/add-blog" element={<UserAddBlog />} />
 
         <Route path="/admin" element={token ? <Layout /> : <Login />}>
           <Route index element={<Dashboard />} />

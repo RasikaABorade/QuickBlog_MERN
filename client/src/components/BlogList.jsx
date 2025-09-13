@@ -1,20 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { blog_data, blogCategories } from "../assets/assets";
 import { motion } from "motion/react";
 import BlogCard from "./BlogCard";
 import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 
 const BlogList = () => {
   const [menu, setMenu] = useState("All");
-  const { blogs, input } = useAppContext();
+  const { blogs, setBlogs, input, axios } = useAppContext();
   console.log("blogs from context:", blogs);
   // const { blogs: contextBlogs, input } = useAppContext();
   // const blogs = contextBlogs.length === 0 ? blog_data : contextBlogs; // ✅ FIXED HERE
 
-  //CHECKING
-  console.log("All blogs from context:", blogs);
-  console.log("Input value:", input);
-  console.log("Menu selected:", menu);
+  const fetchBlogs = async () => {
+    try {
+      // Support both user and admin tokens
+      const token = localStorage.getItem("userToken") || localStorage.getItem("token");
+      if (!token) {
+        setBlogs([]);
+        return;
+      }
+      
+      const { data } = await axios.get("/api/blog/all", {
+        headers: { Authorization: token }
+      });
+      if (data.success) {
+        setBlogs(data.blogs);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchBlogs();
+  }, []);
+
+  // Refresh blogs when user logs in or page loads
+  useEffect(() => {
+    const userToken = localStorage.getItem("userToken") || localStorage.getItem("token");
+    if (userToken) {
+      fetchBlogs();
+    }
+  }, [window.location.pathname]);
 
   //filter bcoz when we will search andything it will filter
   const filteredBlogs = () => {

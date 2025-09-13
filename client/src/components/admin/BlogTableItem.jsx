@@ -2,6 +2,7 @@ import React from "react";
 import { assets } from "../../assets/assets";
 import { useAppContext } from "../../context/AppContext";
 import toast from "react-hot-toast";
+import Moment from "moment";
 
 const BlogTableItem = ({ blog, fetchBlogs, index }) => {
   const { title, createdAt } = blog;
@@ -49,8 +50,25 @@ const BlogTableItem = ({ blog, fetchBlogs, index }) => {
   return (
     <tr className="border-y border-gray-300">
       <th className="px-2 py-4">{index}</th>
-      <td className="px-2 py-4">{title}</td>
-      <td className="px-2 py-4 max-sm:hidden">{BlogDate.toDateString()}</td>
+      <td className="px-2 py-4">
+        <p className="text-sm">{blog.title}</p>
+        <p className="text-xs text-gray-500 mt-1">{blog.category}</p>
+      </td>
+      <td className="px-2 py-4 text-center">
+        <p className="text-xs text-gray-500">
+          {Moment(blog.createdAt).format("MMM DD, YYYY")}
+        </p>
+      </td>
+      <td className="px-2 py-4 text-center">
+        <p className="text-xs text-blue-600">
+          {blog.authorName || "Admin"}
+        </p>
+        {blog.author && blog.author.email && (
+          <p className="text-xs text-gray-400">
+            {blog.author.email}
+          </p>
+        )}
+      </td>
       <td className="px-2 py-4 max-sm:hidden">
         <p
           className={`${
